@@ -33,3 +33,16 @@ type ResponseUser struct {
 	Email    string
 	Accounts []ResponseAccount
 }
+
+//Validation valid
+type Validation struct {
+	Value string
+	Valid string
+}
+
+//Register reg
+type Register struct {
+	Username string
+	Email    string
+	Password string
+}

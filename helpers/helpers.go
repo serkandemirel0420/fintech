@@ -9,14 +9,12 @@ import (
 	"golang.org/x/crypto/bcrypt"
 )
 
-//HandleErr handler
 func HandleErr(err error) {
 	if err != nil {
 		panic(err.Error())
 	}
 }
 
-//HashAndSalt func
 func HashAndSalt(pass []byte) string {
 	hashed, err := bcrypt.GenerateFromPassword(pass, bcrypt.MinCost)
 	HandleErr(err)
@@ -31,11 +29,11 @@ func ConnectDB() *gorm.DB {
 	db, err := gorm.Open("postgres", "host=127.0.0.1 port=5432 user=postgres dbname=postgres password=123456 sslmode=disable")
 	HandleErr(err)
 	return db
+
 }
 
-//Validation vald
+// Create validation
 func Validation(values []interfaces.Validation) bool {
-
 	username := regexp.MustCompile(`^([A-Za-z0-9]{5,})+$`)
 	email := regexp.MustCompile(`^[A-Za-z0-9]+[@]+[A-Za-z0-9]+[.]+[A-Za-z]+$`)
 

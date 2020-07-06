@@ -9,16 +9,44 @@ import (
 	"golang.org/x/crypto/bcrypt"
 )
 
-//Login login
-func Login(username string, pass string) map[string]interface{} {
+// Refactor prepareToken
+func prepareToken(user *interfaces.User) string {
+	tokenContent := jwt.MapClaims{
+		"user_id": user.ID,
+		"expiry":  time.Now().Add(time.Minute * 60).Unix(),
+	}
+	jwtToken := jwt.NewWithClaims(jwt.GetSigningMethod("HS256"), tokenContent)
+	token, err := jwtToken.SignedString([]byte("TokenPassword"))
+	helpers.HandleErr(err)
 
+	return token
+}
+
+// Refactor prepareResponse
+func prepareResponse(user *interfaces.User, accounts []interfaces.ResponseAccount) map[string]interface{} {
+	responseUser := &interfaces.ResponseUser{
+		ID:       user.ID,
+		Username: user.Username,
+		Email:    user.Email,
+		Accounts: accounts,
+	}
+
+	var token = prepareToken(user)
+	var response = map[string]interface{}{"message": "all is fine"}
+	response["jwt"] = token
+	response["data"] = responseUser
+
+	return response
+}
+
+//Login lgn
+func Login(username string, pass string) map[string]interface{} {
 	// Add validation to login
 	valid := helpers.Validation(
 		[]interfaces.Validation{
 			{Value: username, Valid: "username"},
 			{Value: pass, Valid: "password"},
 		})
-
 	if valid {
 		// Connect DB
 		db := helpers.ConnectDB()
@@ -44,39 +72,9 @@ func Login(username string, pass string) map[string]interface{} {
 	} else {
 		return map[string]interface{}{"message": "not valid values"}
 	}
-
 }
 
-func prepareToken(user *interfaces.User) string {
-	tokenContent := jwt.MapClaims{
-		"user_id": user.ID,
-		"expiry":  time.Now().Add(time.Minute * 60).Unix(),
-	}
-	jwtToken := jwt.NewWithClaims(jwt.GetSigningMethod("HS256"), tokenContent)
-	token, err := jwtToken.SignedString([]byte("TokenPassword"))
-	helpers.HandleErr(err)
-
-	return token
-
-}
-
-func prepareResponse(user *interfaces.User, accounts []interfaces.ResponseAccount) map[string]interface{} {
-	responseUser := &interfaces.ResponseUser{
-		ID:       user.ID,
-		Username: user.Username,
-		Email:    user.Email,
-		Accounts: accounts,
-	}
-
-	var token = prepareToken(user)
-	var response = map[string]interface{}{"message": "all is fine"}
-	response["jwt"] = token
-	response["data"] = responseUser
-
-	return response
-}
-
-//Register rgs
+// Create registration function
 func Register(username string, email string, pass string) map[string]interface{} {
 	// Add validation to registration
 	valid := helpers.Validation(
@@ -86,6 +84,8 @@ func Register(username string, email string, pass string) map[string]interface{}
 			{Value: pass, Valid: "password"},
 		})
 	if valid {
+		// Create registration logic
+		// Connect DB
 		db := helpers.ConnectDB()
 		generatedPassword := helpers.HashAndSalt([]byte(pass))
 		user := &interfaces.User{Username: username, Email: email, Password: generatedPassword}
@@ -95,7 +95,6 @@ func Register(username string, email string, pass string) map[string]interface{}
 		db.Create(&account)
 
 		defer db.Close()
-
 		accounts := []interfaces.ResponseAccount{}
 		respAccount := interfaces.ResponseAccount{ID: account.ID, Name: account.Name, Balance: int(account.Balance)}
 		accounts = append(accounts, respAccount)
@@ -105,4 +104,5 @@ func Register(username string, email string, pass string) map[string]interface{}
 	} else {
 		return map[string]interface{}{"message": "not valid values"}
 	}
+
 }

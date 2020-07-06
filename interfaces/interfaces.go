@@ -2,7 +2,7 @@ package interfaces
 
 import "github.com/jinzhu/gorm"
 
-//User user
+//User usr
 type User struct {
 	gorm.Model
 	Username string
@@ -10,7 +10,7 @@ type User struct {
 	Password string
 }
 
-//Account account
+//Account acnt
 type Account struct {
 	gorm.Model
 	Type    string
@@ -19,14 +19,14 @@ type Account struct {
 	UserID  uint
 }
 
-//ResponseAccount resp acc
+//ResponseAccount ResponseAccount
 type ResponseAccount struct {
 	ID      uint
 	Name    string
 	Balance int
 }
 
-//ResponseUser resp user
+//ResponseUser ResponseUser
 type ResponseUser struct {
 	ID       uint
 	Username string
@@ -34,15 +34,8 @@ type ResponseUser struct {
 	Accounts []ResponseAccount
 }
 
-//Validation valid
+//Validation  interface
 type Validation struct {
 	Value string
 	Valid string
-}
-
-//Register reg
-type Register struct {
-	Username string
-	Email    string
-	Password string
 }
